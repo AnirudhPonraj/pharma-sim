@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmaceutical Process Simulation Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg:          #EBE7F7;
+  --bg2:         #DDD6EE;
+  --p900:        #2D1B5E;
+  --p800:        #3D2475;
+  --p700:        #4A2F8E;
+  --p500:        #6B4FA0;
+  --p400:        #8B70C0;
+  --p300:        #A992D5;
+  --p200:        #C8B8E8;
+  --p100:        #E4DBF7;
+  --p50:         #F4F0FC;
+  --white:       #FFFFFF;
+  --card:        #FDFCFF;
+  --border:      rgba(107,79,160,0.14);
+  --border-mid:  rgba(107,79,160,0.28);
+  --txt1:        #2D1B5E;
+  --txt2:        #5A4880;
+  --txt3:        #9080B0;
+  --green:       #1A9470;
+  --green-bg:    #E6F5F0;
+  --green-bdr:   rgba(26,148,112,0.4);
+  --amber:       #C07A10;
+  --amber-bg:    #FDF2E0;
+  --amber-bdr:   rgba(192,122,16,0.4);
+  --red:         #CC3B3B;
+  --red-bg:      #FDEAEA;
+  --red-bdr:     rgba(204,59,59,0.4);
+  --sh-sm:       0 2px 10px rgba(107,79,160,0.09), 0 1px 3px rgba(107,79,160,0.06);
+  --sh-md:       0 6px 24px rgba(107,79,160,0.12), 0 2px 6px rgba(107,79,160,0.07);
+  --sh-lg:       0 12px 40px rgba(107,79,160,0.16), 0 4px 12px rgba(107,79,160,0.09);
+}
+
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--txt1);
+  min-height:100vh;
+  line-height:1.6;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.hdr {
+  background:linear-gradient(135deg, var(--p900) 0%, var(--p800) 60%, #1a0d42 100%);
+  padding:3rem 3rem 2.5rem;
+  position:relative;
+  overflow:hidden;
+}
+.hdr-orb1{
+  position:absolute;top:-100px;right:-60px;
+  width:320px;height:320px;border-radius:50%;
+  background:rgba(255,255,255,0.04);pointer-events:none;
+}
+.hdr-orb2{
+  position:absolute;bottom:-80px;left:15%;
+  width:220px;height:220px;border-radius:50%;
+  background:rgba(139,112,192,0.12);pointer-events:none;
+}
+.hdr-orb3{
+  position:absolute;top:20px;left:45%;
+  width:150px;height:150px;border-radius:50%;
+  background:rgba(255,255,255,0.025);pointer-events:none;
+}
+.hdr-inner{max-width:1120px;margin:0 auto;position:relative;z-index:1;}
+.hdr-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.18);
+  color:rgba(255,255,255,0.8);
+  font-size:11px;font-family:'Outfit',sans-serif;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:5px 14px;border-radius:30px;margin-bottom:16px;
+}
+.hdr-pill-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#48E0A8;box-shadow:0 0 8px rgba(72,224,168,0.6);
+}
+.hdr h1{
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(24px,3vw,38px);
+  font-weight:700;color:#fff;
+  margin-bottom:10px;line-height:1.15;
+}
+.hdr p{font-size:15px;color:rgba(255,255,255,0.6);max-width:580px;line-height:1.7;}
+.hdr-source{
+  margin-top:20px;
+  display:inline-block;
+  font-size:12px;
+  color:rgba(255,255,255,0.4);
+  font-family:'Outfit',sans-serif;
+  border-top:1px solid rgba(255,255,255,0.1);
+  padding-top:12px;
+}
+
+/* ── MAIN ─────────────────────────────────────────────── */
+.main{max-width:1120px;margin:0 auto;padding:2rem 3rem 5rem;}
+
+/* ── TAB NAV ──────────────────────────────────────────── */
+.tab-nav{
+  display:flex;gap:6px;
+  background:var(--white);
+  border-radius:14px;padding:6px;
+  margin-bottom:2rem;
+  box-shadow:var(--sh-sm);
+  border:1px solid var(--border);
+}
+.tab-btn{
+  flex:1;padding:11px 18px;border:none;
+  background:transparent;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  color:var(--txt2);cursor:pointer;transition:all 0.25s;
+}
+.tab-btn:hover{background:var(--p100);color:var(--p500);}
+.tab-btn.active{
+  background:var(--p700);color:#fff;
+  box-shadow:0 3px 12px rgba(74,47,142,0.4);
+}
+
+/* ── PANELS ───────────────────────────────────────────── */
+.panel{display:none;}
+.panel.active{display:block;animation:panelIn 0.3s ease;}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION LABEL ────────────────────────────────────── */
+.sec-lbl{
+  font-family:'Outfit',sans-serif;
+  font-size:11px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--txt3);margin-bottom:14px;
+}
+
+/* ── CONTROLS CARD ────────────────────────────────────── */
+.ctrl-card{
+  background:var(--card);border-radius:18px;
+  padding:1.75rem;margin-bottom:1.75rem;
+  box-shadow:var(--sh-sm);border:1px solid var(--border);
+}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.ctrl-item{}
+.ctrl-lbl{font-size:12px;color:var(--txt3);font-weight:500;margin-bottom:5px;}
+.ctrl-val{
+  font-family:'Outfit',sans-serif;font-size:26px;
+  font-weight:700;color:var(--p700);
+  line-height:1.1;margin-bottom:9px;
+}
+.ctrl-val span.unit{font-size:14px;font-weight:400;color:var(--txt3);margin-left:5px;}
+.range-lbl{
+  display:flex;justify-content:space-between;
+  font-size:10px;color:var(--txt3);margin-top:5px;
+}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:5px;
+  background:var(--p200);border-radius:5px;
+  outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;
+  background:var(--p700);border-radius:50%;
+  cursor:pointer;border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(74,47,142,0.45);
+  transition:transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+input[type=range]::-moz-range-thumb{
+  width:20px;height:20px;
+  background:var(--p700);border-radius:50%;
+  border:3px solid #fff;cursor:pointer;
+}
+
+/* ── KPI BOXES ────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:1.75rem;}
+.kpi-box{
+  background:var(--card);border-radius:16px;
+  padding:1.4rem 1.25rem 1.1rem;
+  box-shadow:var(--sh-sm);
+  border:1px solid var(--border);
+  border-top:4px solid var(--p400);
+  position:relative;overflow:hidden;
+  transition:box-shadow 0.25s, border-top-color 0.4s;
+}
+.kpi-box:hover{box-shadow:var(--sh-md);}
+.kpi-box::before{
+  content:'';position:absolute;
+  top:-30px;right:-30px;
+  width:90px;height:90px;border-radius:50%;
+  background:var(--p50);pointer-events:none;
+}
+.kpi-lbl{
+  font-size:11px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--txt3);margin-bottom:12px;
+}
+.kpi-val{
+  font-family:'Outfit',sans-serif;
+  font-size:36px;font-weight:700;
+  line-height:1;margin-bottom:6px;
+  color:var(--p900);
+  transition:color 0.35s;
+}
+.kpi-unit{font-size:12px;color:var(--txt3);line-height:1.5;}
+.kpi-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:12px;font-size:11px;font-weight:600;
+  padding:4px 11px;border-radius:30px;
+  transition:all 0.35s;
+}
+.kpi-val.good{color:var(--green);}
+.kpi-badge.good{color:var(--green);background:var(--green-bg);border:1px solid var(--green-bdr);}
+.kpi-val.warn{color:var(--amber);}
+.kpi-badge.warn{color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bdr);}
+.kpi-val.bad{color:var(--red);}
+.kpi-badge.bad{color:var(--red);background:var(--red-bg);border:1px solid var(--red-bdr);}
+
+/* ── INSIGHT ──────────────────────────────────────────── */
+.insight{
+  background:linear-gradient(135deg,var(--p100) 0%,var(--bg) 100%);
+  border:1px solid var(--p200);
+  border-left:4px solid var(--p500);
+  border-radius:12px;
+  padding:14px 18px;
+  font-size:14px;color:var(--txt2);
+  line-height:1.7;margin-bottom:1.75rem;
+}
+.insight strong{color:var(--p700);font-weight:600;}
+
+/* ── CHART CARDS ──────────────────────────────────────── */
+.charts-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:1.75rem;}
+.chart-card,.chart-card-full{
+  background:var(--card);border-radius:16px;
+  padding:1.4rem 1.4rem 1.1rem;
+  box-shadow:var(--sh-sm);border:1px solid var(--border);
+}
+.chart-card-full{margin-bottom:1.75rem;}
+.ch-wrap{position:relative;width:100%;height:250px;}
+
+/* ── SCENARIO BUTTONS ─────────────────────────────────── */
+.scen-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.75rem;}
+.scen-btn{
+  padding:9px 20px;
+  border:1.5px solid var(--border-mid);
+  border-radius:30px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--txt2);background:var(--card);
+  cursor:pointer;transition:all 0.22s;
+}
+.scen-btn:hover{border-color:var(--p400);color:var(--p500);background:var(--p50);}
+.scen-btn.active{
+  background:var(--p700);border-color:var(--p700);
+  color:#fff;box-shadow:0 4px 14px rgba(74,47,142,0.35);
+}
+
+/* ── CLEANROOM MAP ────────────────────────────────────── */
+.map-card{
+  background:var(--card);border-radius:16px;
+  padding:1.4rem;
+  box-shadow:var(--sh-sm);border:1px solid var(--border);
+  margin-bottom:1.75rem;
+}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--txt3);}
+.legend-swatch{width:12px;height:12px;border-radius:3px;display:inline-block;}
+
+/* ── FOOTER ───────────────────────────────────────────── */
+.footer{
+  text-align:center;padding:1.5rem;
+  font-size:12px;color:var(--txt3);
+  border-top:1px solid var(--border);
+  margin-top:1rem;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media(max-width:720px){
+  .main{padding:1rem 1rem 3rem;}
+  .hdr{padding:1.5rem 1rem 1.5rem;}
+  .ctrl-grid,.kpi-row,.charts-2{grid-template-columns:1fr;}
+  .tab-btn{font-size:12px;padding:8px 8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-orb1"></div>
+  <div class="hdr-orb2"></div>
+  <div class="hdr-orb3"></div>
+  <div class="hdr-inner">
+    <div class="hdr-pill"><span class="hdr-pill-dot"></span>Interactive Simulation</div>
+    <h1>Pharmaceutical Process Simulation</h1>
+    <p>Physics-approximated interactive models of bioreactor scale-up, stirred tank mixing, and cleanroom airflow — based on the Siemens Digital Industries white paper.</p>
+    <div class="hdr-source">Source: Aglave &amp; Doyle, "Simulation in the Pharmaceutical Industry", Siemens Digital Industries Software, 2024</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('bio',this)">🧬 Bioreactor Scale-Up</button>
+    <button class="tab-btn" onclick="showTab('mix',this)">🌀 Stirred Tank Mixing</button>
+    <button class="tab-btn" onclick="showTab('clean',this)">🏭 Cleanroom Airflow</button>
+  </div>
+
+  <!-- ═══════════════════════ BIOREACTOR PANEL ═══════════════════════ -->
+  <div class="panel active" id="panel-bio">
+    <div class="ctrl-card">
+      <div class="sec-lbl">Configure simulation parameters</div>
+      <div class="ctrl-grid">
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Vessel volume</div>
+          <div class="ctrl-val"><span id="b-vol">200</span><span class="unit">L</span></div>
+          <input type="range" min="2" max="2000" step="1" value="200" id="b-vol-s" oninput="updateBio()">
+          <div class="range-lbl"><span>1.5 L — lab scale</span><span>2000 L — production</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Impeller speed</div>
+          <div class="ctrl-val"><span id="b-rpm">120</span><span class="unit">RPM</span></div>
+          <input type="range" min="50" max="400" step="1" value="120" id="b-rpm-s" oninput="updateBio()">
+          <div class="range-lbl"><span>50 — gentle</span><span>400 — aggressive</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Aeration rate</div>
+          <div class="ctrl-val"><span id="b-aer">1.0</span><span class="unit">vvm</span></div>
+          <input type="range" min="1" max="30" step="1" value="10" id="b-aer-s" oninput="updateBio()">
+          <div class="range-lbl"><span>0.1</span><span>3.0</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Temperature</div>
+          <div class="ctrl-val"><span id="b-temp">37</span><span class="unit">°C</span></div>
+          <input type="range" min="25" max="45" step="1" value="37" id="b-temp-s" oninput="updateBio()">
+          <div class="range-lbl"><span>25°C — cold</span><span>45°C — hot</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Key performance indicators</div>
+    <div class="kpi-row">
+      <div class="kpi-box" id="kbox-otr">
+        <div class="kpi-lbl">Oxygen transfer rate</div>
+        <div class="kpi-val" id="kv-otr">—</div>
+        <div class="kpi-unit">mmol O₂ / L·h<br>Higher is better — drives cell growth</div>
+        <div class="kpi-badge" id="kb-otr">Calculating…</div>
+      </div>
+      <div class="kpi-box" id="kbox-shear">
+        <div class="kpi-lbl">Shear stress</div>
+        <div class="kpi-val" id="kv-shear">—</div>
+        <div class="kpi-unit">Pa — cell damage indicator<br>Lower is safer for biological cells</div>
+        <div class="kpi-badge" id="kb-shear">Calculating…</div>
+      </div>
+      <div class="kpi-box" id="kbox-mt">
+        <div class="kpi-lbl">Mixing time</div>
+        <div class="kpi-val" id="kv-mt">—</div>
+        <div class="kpi-unit">seconds to homogeneity<br>Lower means faster process cycle</div>
+        <div class="kpi-badge" id="kb-mt">Calculating…</div>
+      </div>
+    </div>
+
+    <div class="insight" id="ins-bio">Adjust parameters above to run the simulation.</div>
+
+    <div class="charts-2">
+      <div class="chart-card">
+        <div class="sec-lbl">Pareto front — OTR vs shear stress</div>
+        <div class="ch-wrap"><canvas id="c-pareto" role="img" aria-label="Scatter plot showing trade-off between oxygen transfer rate and shear stress. Each point is one operating condition.">OTR vs shear trade-off Pareto front.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="sec-lbl">Scale-up comparison across vessel sizes</div>
+        <div class="ch-wrap"><canvas id="c-scale" role="img" aria-label="Bar chart comparing OTR and shear stress from 1.5L lab scale to 2000L production scale.">OTR and shear across vessel scales.</canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MIXING PANEL ═══════════════════════ -->
+  <div class="panel" id="panel-mix">
+    <div class="sec-lbl">Select impeller design</div>
+    <div class="scen-row">
+      <button class="scen-btn active" onclick="selImp(0,this)">Baseline — Rushton turbine</button>
+      <button class="scen-btn" onclick="selImp(1,this)">Pitched blade</button>
+      <button class="scen-btn" onclick="selImp(2,this)">Hydrofoil</button>
+      <button class="scen-btn" onclick="selImp(3,this)">CFD-optimized</button>
+    </div>
+
+    <div class="ctrl-card">
+      <div class="sec-lbl">Configure simulation parameters</div>
+      <div class="ctrl-grid">
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Impeller speed</div>
+          <div class="ctrl-val"><span id="m-rpm">100</span><span class="unit">RPM</span></div>
+          <input type="range" min="50" max="300" step="1" value="100" id="m-rpm-s" oninput="updateMix()">
+          <div class="range-lbl"><span>50</span><span>300</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Fluid viscosity</div>
+          <div class="ctrl-val"><span id="m-visc">5</span><span class="unit">mPa·s</span></div>
+          <input type="range" min="1" max="100" step="1" value="5" id="m-visc-s" oninput="updateMix()">
+          <div class="range-lbl"><span>1 — watery</span><span>100 — thick</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Tank fill level</div>
+          <div class="ctrl-val"><span id="m-fill">80</span><span class="unit">%</span></div>
+          <input type="range" min="30" max="100" step="1" value="80" id="m-fill-s" oninput="updateMix()">
+          <div class="range-lbl"><span>30%</span><span>100%</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Number of baffles</div>
+          <div class="ctrl-val"><span id="m-baff">4</span></div>
+          <input type="range" min="0" max="6" step="1" value="4" id="m-baff-s" oninput="updateMix()">
+          <div class="range-lbl"><span>0 — none</span><span>6 — maximum</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Key performance indicators</div>
+    <div class="kpi-row">
+      <div class="kpi-box">
+        <div class="kpi-lbl">Blend time</div>
+        <div class="kpi-val" id="kv-blend">—</div>
+        <div class="kpi-unit">seconds to reach homogeneity<br>Lower means more throughput</div>
+        <div class="kpi-badge" id="kb-blend">Calculating…</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">Mixing uniformity</div>
+        <div class="kpi-val" id="kv-unif">—</div>
+        <div class="kpi-unit">% achieved<br>Higher ensures consistent drug dosage</div>
+        <div class="kpi-badge" id="kb-unif">Calculating…</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">Power consumption</div>
+        <div class="kpi-val" id="kv-pwr">—</div>
+        <div class="kpi-unit">kW<br>Lower reduces operational cost</div>
+        <div class="kpi-badge" id="kb-pwr">Calculating…</div>
+      </div>
+    </div>
+
+    <div class="insight" id="ins-mix">Select an impeller design and adjust parameters to run the simulation.</div>
+
+    <div class="charts-2">
+      <div class="chart-card">
+        <div class="sec-lbl">Blend time by impeller design</div>
+        <div class="ch-wrap"><canvas id="c-blend" role="img" aria-label="Bar chart comparing blend time across four impeller designs.">Blend time per impeller.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="sec-lbl">Uniformity vs power consumption</div>
+        <div class="ch-wrap"><canvas id="c-unif" role="img" aria-label="Grouped bar chart showing uniformity and power for each impeller type.">Uniformity and power per impeller.</canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ CLEANROOM PANEL ═══════════════════════ -->
+  <div class="panel" id="panel-clean">
+    <div class="ctrl-card">
+      <div class="sec-lbl">Configure airflow parameters</div>
+      <div class="ctrl-grid">
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Air change rate (ACH)</div>
+          <div class="ctrl-val"><span id="c-acr">20</span><span class="unit">changes/h</span></div>
+          <input type="range" min="5" max="60" step="1" value="20" id="c-acr-s" oninput="updateClean()">
+          <div class="range-lbl"><span>5 — low</span><span>60 — high</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Equipment obstructions</div>
+          <div class="ctrl-val"><span id="c-obs">2</span><span class="unit">units</span></div>
+          <input type="range" min="0" max="8" step="1" value="2" id="c-obs-s" oninput="updateClean()">
+          <div class="range-lbl"><span>0 — clear floor</span><span>8 — crowded</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">Supply vent position</div>
+          <div class="ctrl-val" id="c-vent-lbl" style="font-size:20px">Ceiling</div>
+          <input type="range" min="0" max="2" step="1" value="0" id="c-vent-s" oninput="updateClean()">
+          <div class="range-lbl"><span>Ceiling</span><span>Side-wall</span><span>Floor</span></div>
+        </div>
+        <div class="ctrl-item">
+          <div class="ctrl-lbl">RABS pressure differential</div>
+          <div class="ctrl-val"><span id="c-press">15</span><span class="unit">Pa above ambient</span></div>
+          <input type="range" min="5" max="50" step="1" value="15" id="c-press-s" oninput="updateClean()">
+          <div class="range-lbl"><span>5 Pa</span><span>50 Pa</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Key performance indicators</div>
+    <div class="kpi-row">
+      <div class="kpi-box">
+        <div class="kpi-lbl">Contamination risk index</div>
+        <div class="kpi-val" id="kv-risk">—</div>
+        <div class="kpi-unit">0 = fully safe / 100 = critical<br>Batch destroyed if above threshold</div>
+        <div class="kpi-badge" id="kb-risk">Calculating…</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">Dead zone coverage</div>
+        <div class="kpi-val" id="kv-dead">—</div>
+        <div class="kpi-unit">% of room area<br>Stagnant zones where particles settle</div>
+        <div class="kpi-badge" id="kb-dead">Calculating…</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">ISO classification</div>
+        <div class="kpi-val" id="kv-iso">—</div>
+        <div class="kpi-unit">ISO 14644-1 cleanliness standard<br>ISO 5–6 required for vaccine filling</div>
+        <div class="kpi-badge" id="kb-iso">Calculating…</div>
+      </div>
+    </div>
+
+    <div class="insight" id="ins-clean">Adjust airflow parameters to run the contamination risk simulation.</div>
+
+    <div class="map-card">
+      <div class="sec-lbl">Airflow uniformity map — cleanroom top view</div>
+      <canvas id="c-map" style="width:100%;display:block;border-radius:10px;" role="img" aria-label="Top-view heatmap of cleanroom airflow showing contamination risk by zone.">Cleanroom airflow heatmap.</canvas>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch" style="background:#48c78e"></span>Low risk — clean airflow</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#ffdd57"></span>Moderate risk</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#f14668"></span>High contamination risk</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#4BA9DD"></span>RABS sterile zone</div>
+      </div>
+    </div>
+
+    <div class="chart-card-full">
+      <div class="sec-lbl">Contamination risk vs air change rate — standard vs optimized layout</div>
+      <div class="ch-wrap"><canvas id="c-cleanline" role="img" aria-label="Line chart showing contamination risk decreasing as air change rate increases, with two lines for standard and optimized layout.">Risk vs ACH.</canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Simulation models are physics-approximated for educational purposes based on the Siemens Digital Industries Software white paper (2024).
+</footer>
+
+<script>
+// ─── UTILITIES ──────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'bio') { if (!bioReady) initBio(); updateBio(); }
+  if (id === 'mix') { if (!mixReady) initMix(); updateMix(); }
+  if (id === 'clean') { if (!cleanReady) initClean(); updateClean(); }
+}
+
+function applyKPI(valId, badgeId, boxId, displayText, status, borderColor) {
+  const vEl = document.getElementById(valId);
+  const bEl = document.getElementById(badgeId);
+  const xEl = boxId ? document.getElementById(boxId) : (vEl ? vEl.closest('.kpi-box') : null);
+  if (!vEl || !bEl) return;
+  vEl.textContent = displayText;
+  vEl.className = 'kpi-val ' + status;
+  const labels = { good: '✓ Optimal', warn: '⚠ Moderate', bad: '✗ Critical' };
+  bEl.textContent = labels[status] || status;
+  bEl.className = 'kpi-badge ' + status;
+  if (xEl) xEl.style.borderTopColor = borderColor;
+}
+
+// ─── BIOREACTOR ─────────────────────────────────────────────────────────────
+let bioReady = false, chartPareto, chartScale;
+
+function calcOTR(vol, rpm, aer, temp) {
+  const kla = 0.015 * Math.pow(rpm / 100, 1.6) * Math.pow(aer, 0.4) * Math.exp(0.03 * (temp - 37));
+  const cStar = 8.5 * Math.exp(-0.02 * (temp - 20));
+  return kla * cStar * (1 - 0.08 * Math.log10(vol / 1.5 + 1));
+}
+function calcShear(rpm, vol) {
+  return 0.0008 * rpm * Math.pow(vol / 1.5, 0.15);
+}
+function calcMixT(rpm, vol) {
+  return Math.round(750 / rpm * Math.pow(vol / 10, 0.33));
+}
+
+function initBio() {
+  const pts = [];
+  for (let r = 60; r <= 400; r += 22) {
+    for (let a = 0.5; a <= 2.5; a += 0.5) {
+      pts.push({ x: +calcShear(r, 200).toFixed(2), y: +calcOTR(200, r, a, 37).toFixed(2), r: 5 });
+    }
+  }
+  chartPareto = new Chart(document.getElementById('c-pareto').getContext('2d'), {
+    type: 'bubble',
+    data: { datasets: [
+      { label: 'Design space', data: pts, backgroundColor: 'rgba(139,112,192,0.25)', borderColor: 'rgba(139,112,192,0.5)', borderWidth: 1 },
+      { label: 'Your setting', data: [{ x: 1, y: 3, r: 13 }], backgroundColor: 'rgba(26,148,112,0.85)', borderColor: '#1A9470', borderWidth: 2 }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      layout: { padding: 16 },
+      scales: {
+        x: { title: { display: true, text: 'Shear stress (Pa)', color: '#9080B0' }, ticks: { color: '#9080B0' }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y: { title: { display: true, text: 'OTR (mmol O₂/L·h)', color: '#9080B0' }, ticks: { color: '#9080B0' }, grid: { color: 'rgba(107,79,160,0.07)' } }
+      }
+    }
+  });
+  chartScale = new Chart(document.getElementById('c-scale').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['1.5 L', '10 L', '50 L', '200 L', '500 L', '2000 L'],
+      datasets: [
+        { label: 'OTR', data: [], backgroundColor: 'rgba(107,79,160,0.72)', borderRadius: 5, yAxisID: 'y' },
+        { label: 'Shear (Pa)', data: [], backgroundColor: 'rgba(204,59,59,0.65)', borderRadius: 5, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#9080B0', font: { size: 11 } }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y: { type: 'linear', position: 'left', title: { display: true, text: 'OTR', color: '#6B4FA0' }, ticks: { color: '#6B4FA0' }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Shear (Pa)', color: '#CC3B3B' }, ticks: { color: '#CC3B3B' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+  bioReady = true;
+}
+
+function updateBio() {
+  const vol = +document.getElementById('b-vol-s').value;
+  const rpm = +document.getElementById('b-rpm-s').value;
+  const aerRaw = +document.getElementById('b-aer-s').value;
+  const aer = aerRaw / 10;
+  const temp = +document.getElementById('b-temp-s').value;
+  document.getElementById('b-vol').textContent = vol;
+  document.getElementById('b-rpm').textContent = rpm;
+  document.getElementById('b-aer').textContent = aer.toFixed(1);
+  document.getElementById('b-temp').textContent = temp;
+
+  const otr = calcOTR(vol, rpm, aer, temp);
+  const shear = calcShear(rpm, vol);
+  const mt = calcMixT(rpm, vol);
+
+  const otrS = otr > 5 ? 'good' : otr > 2 ? 'warn' : 'bad';
+  const otrC = otrS === 'good' ? 'var(--green)' : otrS === 'warn' ? 'var(--amber)' : 'var(--red)';
+  const otrTxt = otrS === 'good' ? '✓ High oxygen transfer' : otrS === 'warn' ? '⚠ Moderate — improve aeration' : '✗ Too low — cells starved';
+  document.getElementById('kv-otr').textContent = otr.toFixed(2);
+  document.getElementById('kv-otr').className = 'kpi-val ' + otrS;
+  document.getElementById('kb-otr').textContent = otrTxt;
+  document.getElementById('kb-otr').className = 'kpi-badge ' + otrS;
+  document.getElementById('kbox-otr').style.borderTopColor = otrC;
+
+  const shS = shear < 3 ? 'good' : shear < 8 ? 'warn' : 'bad';
+  const shC = shS === 'good' ? 'var(--green)' : shS === 'warn' ? 'var(--amber)' : 'var(--red)';
+  const shTxt = shS === 'good' ? '✓ Safe for cells' : shS === 'warn' ? '⚠ Borderline — monitor' : '✗ Cell damage risk';
+  document.getElementById('kv-shear').textContent = shear.toFixed(2);
+  document.getElementById('kv-shear').className = 'kpi-val ' + shS;
+  document.getElementById('kb-shear').textContent = shTxt;
+  document.getElementById('kb-shear').className = 'kpi-badge ' + shS;
+  document.getElementById('kbox-shear').style.borderTopColor = shC;
+
+  const mtS = mt < 60 ? 'good' : mt < 180 ? 'warn' : 'bad';
+  const mtC = mtS === 'good' ? 'var(--green)' : mtS === 'warn' ? 'var(--amber)' : 'var(--red)';
+  const mtTxt = mtS === 'good' ? '✓ Fast mixing' : mtS === 'warn' ? '⚠ Acceptable' : '✗ Too slow — scale-up risk';
+  document.getElementById('kv-mt').textContent = mt;
+  document.getElementById('kv-mt').className = 'kpi-val ' + mtS;
+  document.getElementById('kb-mt').textContent = mtTxt;
+  document.getElementById('kb-mt').className = 'kpi-badge ' + mtS;
+  document.getElementById('kbox-mt').style.borderTopColor = mtC;
+
+  let ins = '';
+  if (shear > 8)
+    ins = '<strong>High shear risk:</strong> At this RPM, mechanical forces on biological cells are dangerous — cells can rupture and die, severely reducing drug yield. Reduce impeller speed or use a gentler impeller geometry like a hydrofoil.';
+  else if (otr < 2)
+    ins = '<strong>Insufficient oxygen transfer:</strong> Cells are oxygen-starved, limiting growth and drug production. Increase the aeration rate or slightly raise the RPM to improve dissolved oxygen distribution.';
+  else if (otr > 5 && shear < 3)
+    ins = '<strong>Optimal operating window:</strong> High oxygen transfer with safe shear stress — this is the Pareto-optimal zone. Procegence achieved scale-up from 1.5L to 2,000L by finding exactly this balance using CFD simulation.';
+  else
+    ins = '<strong>Trade-off region:</strong> Balancing oxygen transfer against cell safety. Fine-tune the aeration rate to push toward the green optimal zone on the Pareto front chart without increasing RPM further.';
+  document.getElementById('ins-bio').innerHTML = ins;
+
+  if (chartPareto) {
+    chartPareto.data.datasets[1].data = [{ x: +shear.toFixed(2), y: +otr.toFixed(2), r: 13 }];
+    chartPareto.update('none');
+    const vols = [1.5, 10, 50, 200, 500, 2000];
+    chartScale.data.datasets[0].data = vols.map(v => +calcOTR(v, rpm, aer, temp).toFixed(2));
+    chartScale.data.datasets[1].data = vols.map(v => +calcShear(rpm, v).toFixed(2));
+    chartScale.update('none');
+  }
+}
+
+// ─── MIXING ─────────────────────────────────────────────────────────────────
+let mixReady = false, chartBlend, chartUnif, activeImp = 0;
+const IMPS = [
+  { label: 'Rushton',      bf: 1.00, unif: 82, pf: 1.00, color: 'rgba(138,112,184,0.75)' },
+  { label: 'Pitched',      bf: 0.85, unif: 88, pf: 0.80, color: 'rgba(55,138,221,0.75)' },
+  { label: 'Hydrofoil',    bf: 0.75, unif: 91, pf: 0.65, color: 'rgba(26,148,112,0.75)' },
+  { label: 'CFD-optim.',   bf: 0.55, unif: 95, pf: 0.58, color: 'rgba(99,153,34,0.75)' }
+];
+
+function initMix() {
+  chartBlend = new Chart(document.getElementById('c-blend').getContext('2d'), {
+    type: 'bar',
+    data: { labels: IMPS.map(i => i.label), datasets: [{ data: [], backgroundColor: IMPS.map(i => i.color), borderRadius: 6, borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: '#9080B0', font: { size: 11 } }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y: { title: { display: true, text: 'Blend time (s)', color: '#9080B0' }, ticks: { color: '#9080B0' }, grid: { color: 'rgba(107,79,160,0.07)' } } } }
+  });
+  chartUnif = new Chart(document.getElementById('c-unif').getContext('2d'), {
+    type: 'bar',
+    data: { labels: IMPS.map(i => i.label), datasets: [
+      { label: 'Uniformity %', data: [], backgroundColor: IMPS.map(i => i.color), borderRadius: 6, yAxisID: 'y' },
+      { label: 'Power kW', data: [], backgroundColor: 'rgba(204,59,59,0.5)', borderRadius: 6, yAxisID: 'y1' }
+    ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#9080B0', font: { size: 11 } }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y: { type: 'linear', position: 'left', min: 60, max: 100, ticks: { color: '#1A9470' }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y1: { type: 'linear', position: 'right', ticks: { color: '#CC3B3B' }, grid: { drawOnChartArea: false } }
+      }}
+  });
+  mixReady = true;
+}
+
+function selImp(idx, btn) {
+  activeImp = idx;
+  document.querySelectorAll('.scen-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateMix();
+}
+
+function calcBlend(imp, rpm, fill, visc, baff) {
+  const bf = baff === 0 ? 1.55 : baff < 3 ? 1.18 : 1.0;
+  return Math.round(3300 / rpm * imp.bf * (fill / 80) * Math.pow(visc / 5, 0.27) * bf);
+}
+function calcPower(imp, rpm) {
+  return +(0.0022 * Math.pow(rpm, 3) * imp.pf / 1e6).toFixed(2);
+}
+function calcUnif(imp, baff, visc) {
+  return Math.min(99, imp.unif + (baff > 2 ? 3 : 0) - (visc > 50 ? 9 : 0));
+}
+
+function updateMix() {
+  if (!mixReady) { initMix(); }
+  const rpm = +document.getElementById('m-rpm-s').value;
+  const visc = +document.getElementById('m-visc-s').value;
+  const fill = +document.getElementById('m-fill-s').value;
+  const baff = +document.getElementById('m-baff-s').value;
+  document.getElementById('m-rpm').textContent = rpm;
+  document.getElementById('m-visc').textContent = visc;
+  document.getElementById('m-fill').textContent = fill;
+  document.getElementById('m-baff').textContent = baff;
+
+  const imp = IMPS[activeImp];
+  const blend = calcBlend(imp, rpm, fill, visc, baff);
+  const unif = calcUnif(imp, baff, visc);
+  const pwr = calcPower(imp, rpm);
+
+  const bS = blend < 60 ? 'good' : blend < 150 ? 'warn' : 'bad';
+  document.getElementById('kv-blend').textContent = blend;
+  document.getElementById('kv-blend').className = 'kpi-val ' + bS;
+  document.getElementById('kb-blend').textContent = bS === 'good' ? '✓ Fast blend' : bS === 'warn' ? '⚠ Acceptable' : '✗ Too slow';
+  document.getElementById('kb-blend').className = 'kpi-badge ' + bS;
+  document.getElementById('kv-blend').closest('.kpi-box').style.borderTopColor = bS === 'good' ? 'var(--green)' : bS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  const uS = unif >= 95 ? 'good' : unif >= 85 ? 'warn' : 'bad';
+  document.getElementById('kv-unif').textContent = unif + '%';
+  document.getElementById('kv-unif').className = 'kpi-val ' + uS;
+  document.getElementById('kb-unif').textContent = uS === 'good' ? '✓ Excellent' : uS === 'warn' ? '⚠ Moderate' : '✗ Poor — dead zones present';
+  document.getElementById('kb-unif').className = 'kpi-badge ' + uS;
+  document.getElementById('kv-unif').closest('.kpi-box').style.borderTopColor = uS === 'good' ? 'var(--green)' : uS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  const pS = pwr < 0.5 ? 'good' : pwr < 2 ? 'warn' : 'bad';
+  document.getElementById('kv-pwr').textContent = pwr.toFixed(2);
+  document.getElementById('kv-pwr').className = 'kpi-val ' + pS;
+  document.getElementById('kb-pwr').textContent = pS === 'good' ? '✓ Efficient' : pS === 'warn' ? '⚠ Moderate cost' : '✗ High energy use';
+  document.getElementById('kb-pwr').className = 'kpi-badge ' + pS;
+  document.getElementById('kv-pwr').closest('.kpi-box').style.borderTopColor = pS === 'good' ? 'var(--green)' : pS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  let ins = '';
+  if (activeImp === 3)
+    ins = '<strong>CFD-optimized impeller:</strong> This design achieves 95% uniformity with 42% less power than the Rushton baseline — directly replicating the finding from Creaform Engineering in the paper, who reduced blend time by 20% while maintaining 95% uniformity using Simcenter STAR-CCM+.';
+  else if (unif < 85)
+    ins = '<strong>Poor uniformity detected:</strong> High viscosity and/or insufficient baffles are creating stagnant dead zones where ingredients don\'t mix. Try adding more baffles or switch to the CFD-optimized impeller.';
+  else if (baff === 0)
+    ins = '<strong>No baffles:</strong> Without baffles the fluid rotates as a solid cylinder (vortexing), dramatically reducing mixing efficiency. Add at least 2 baffles to break the circular flow pattern.';
+  else
+    ins = '<strong>' + imp.label + ' impeller:</strong> Blend time ' + blend + 's at ' + unif + '% uniformity. Switch to the CFD-optimized design to see the efficiency gain demonstrated in the Siemens case study.';
+  document.getElementById('ins-mix').innerHTML = ins;
+
+  if (chartBlend) {
+    chartBlend.data.datasets[0].data = IMPS.map(d => calcBlend(d, rpm, fill, visc, baff));
+    chartBlend.update('none');
+    chartUnif.data.datasets[0].data = IMPS.map(d => calcUnif(d, baff, visc));
+    chartUnif.data.datasets[1].data = IMPS.map(d => calcPower(d, rpm));
+    chartUnif.update('none');
+  }
+}
+
+// ─── CLEANROOM ───────────────────────────────────────────────────────────────
+let cleanReady = false, chartClean;
+const VENT_NAMES = ['Ceiling (standard)', 'Side-wall', 'Floor-level'];
+
+function initClean() {
+  const acrVals = Array.from({ length: 12 }, (_, i) => i * 5 + 5);
+  chartClean = new Chart(document.getElementById('c-cleanline').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: acrVals,
+      datasets: [
+        { label: 'Standard layout', data: acrVals.map(a => Math.max(5, Math.round(100 * Math.exp(-0.07 * a)))),
+          borderColor: '#CC3B3B', backgroundColor: 'rgba(204,59,59,0.08)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#CC3B3B' },
+        { label: 'CFD-optimized layout', data: acrVals.map(a => Math.max(3, Math.round(68 * Math.exp(-0.09 * a)))),
+          borderColor: '#1A9470', backgroundColor: 'rgba(26,148,112,0.06)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#1A9470', borderDash: [6, 3] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: 'Air change rate (ACH)', color: '#9080B0' }, ticks: { color: '#9080B0' }, grid: { color: 'rgba(107,79,160,0.07)' } },
+        y: { title: { display: true, text: 'Contamination risk index', color: '#9080B0' }, ticks: { color: '#9080B0' }, min: 0, max: 105, grid: { color: 'rgba(107,79,160,0.07)' } }
+      }
+    }
+  });
+  cleanReady = true;
+}
+
+function updateClean() {
+  if (!cleanReady) { initClean(); }
+  const acr = +document.getElementById('c-acr-s').value;
+  const obs = +document.getElementById('c-obs-s').value;
+  const vent = +document.getElementById('c-vent-s').value;
+  const press = +document.getElementById('c-press-s').value;
+  document.getElementById('c-acr').textContent = acr;
+  document.getElementById('c-obs').textContent = obs;
+  document.getElementById('c-vent-lbl').textContent = VENT_NAMES[vent];
+  document.getElementById('c-press').textContent = press;
+
+  const ventP = vent === 0 ? 0 : vent === 1 ? 14 : 28;
+  const obsP = obs * 5.5;
+  const pressB = Math.min(22, (press - 5) * 0.75);
+  const risk = Math.min(100, Math.round(Math.max(4, 100 * Math.exp(-0.07 * acr) + ventP + obsP - pressB)));
+  const dead = Math.max(2, Math.round(4 + obs * 3.5 - acr * 0.27 + ventP * 0.25));
+  const iso = acr >= 40 ? 'ISO 5' : acr >= 20 ? 'ISO 6' : acr >= 10 ? 'ISO 7' : 'ISO 8';
+
+  const rS = risk < 20 ? 'good' : risk < 55 ? 'warn' : 'bad';
+  document.getElementById('kv-risk').textContent = risk;
+  document.getElementById('kv-risk').className = 'kpi-val ' + rS;
+  document.getElementById('kb-risk').textContent = rS === 'good' ? '✓ Safe level' : rS === 'warn' ? '⚠ Monitor closely' : '✗ Batch at risk';
+  document.getElementById('kb-risk').className = 'kpi-badge ' + rS;
+  document.getElementById('kv-risk').closest('.kpi-box').style.borderTopColor = rS === 'good' ? 'var(--green)' : rS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  const dS = dead < 10 ? 'good' : dead < 20 ? 'warn' : 'bad';
+  document.getElementById('kv-dead').textContent = dead + '%';
+  document.getElementById('kv-dead').className = 'kpi-val ' + dS;
+  document.getElementById('kb-dead').textContent = dS === 'good' ? '✓ Minimal stagnation' : dS === 'warn' ? '⚠ Notable dead zones' : '✗ Excessive — redesign';
+  document.getElementById('kb-dead').className = 'kpi-badge ' + dS;
+  document.getElementById('kv-dead').closest('.kpi-box').style.borderTopColor = dS === 'good' ? 'var(--green)' : dS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  const iS = iso === 'ISO 5' || iso === 'ISO 6' ? 'good' : iso === 'ISO 7' ? 'warn' : 'bad';
+  document.getElementById('kv-iso').textContent = iso;
+  document.getElementById('kv-iso').className = 'kpi-val ' + iS;
+  document.getElementById('kb-iso').textContent = iS === 'good' ? '✓ Pharma-grade' : iS === 'warn' ? '⚠ Marginal for pharma' : '✗ Below standard';
+  document.getElementById('kb-iso').className = 'kpi-badge ' + iS;
+  document.getElementById('kv-iso').closest('.kpi-box').style.borderTopColor = iS === 'good' ? 'var(--green)' : iS === 'warn' ? 'var(--amber)' : 'var(--red)';
+
+  let ins = '';
+  if (risk > 65)
+    ins = '<strong>Critical contamination risk:</strong> Obstructions are creating turbulent dead zones around the sterile area. A batch contaminated at this level must be destroyed — a huge financial loss. Increase air changes significantly and reposition equipment away from the fill station.';
+  else if (vent > 0)
+    ins = '<strong>Non-standard vent position:</strong> ISO standards require ceiling supply vents for proper top-down laminar airflow. Side-wall or floor vents cause dangerous turbulence near the product — exactly the issue Creaform Engineering found and fixed using CFD.';
+  else if (press < 10)
+    ins = '<strong>Insufficient RABS pressure:</strong> The restricted-access barrier needs ≥15 Pa above ambient to block inward air leakage. Creaform\'s case study identified a pressure gradient as the hidden cause of contamination risk missed by traditional smoke tests.';
+  else if (risk < 20)
+    ins = '<strong>Compliant cleanroom configuration:</strong> Airflow meets ISO 5–6 pharmaceutical standards — suitable for vaccine filling, as achieved by Creaform Engineering after applying CFD-guided redesign of deflectors and partitions.';
+  else
+    ins = '<strong>Moderate risk level:</strong> Airflow is partially disrupted. Reduce equipment obstruction count or raise the air change rate to achieve ISO 6 classification for pharmaceutical-grade manufacturing.';
+  document.getElementById('ins-clean').innerHTML = ins;
+
+  drawMap(risk, obs, vent, acr);
+}
+
+function drawMap(risk, obs, vent, acr) {
+  const canvas = document.getElementById('c-map');
+  canvas.width = 860;
+  canvas.height = 260;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const cols = 26, rows = 8;
+  const cw = W / cols, ch = H / rows;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const distV = vent === 0 ? r / rows : vent === 1 ? Math.abs(c - cols / 2) / cols : 1 - (r / rows);
+      const obsE = obs > 0 ? Math.min(0.9, obs * 0.07 * Math.exp(-0.12 * Math.sqrt((c - 13) ** 2 + (r - 4) ** 2))) : 0;
+      const acrE = Math.max(0, 1 - acr / 58);
+      const base = Math.min(1, distV * 0.4 + obsE * 0.65 + acrE * 0.18 + (Math.random() * 0.03));
+      const g = Math.round(195 - base * 155);
+      const rb = Math.round(base * 235);
+      ctx.fillStyle = 'rgba(' + rb + ',' + g + ',' + Math.round(75 - base * 55) + ',0.78)';
+      ctx.fillRect(c * cw + 0.5, r * ch + 0.5, cw - 1, ch - 1);
+    }
+  }
+
+  // RABS sterile zone
+  ctx.fillStyle = 'rgba(75,169,221,0.84)';
+  const sx = W * 0.33, sy = H * 0.18, sw = W * 0.34, shh = H * 0.60;
+  ctx.beginPath();
+  ctx.moveTo(sx + 10, sy);
+  ctx.lineTo(sx + sw - 10, sy);
+  ctx.quadraticCurveTo(sx + sw, sy, sx + sw, sy + 10);
+  ctx.lineTo(sx + sw, sy + shh - 10);
+  ctx.quadraticCurveTo(sx + sw, sy + shh, sx + sw - 10, sy + shh);
+  ctx.lineTo(sx + 10, sy + shh);
+  ctx.quadraticCurveTo(sx, sy + shh, sx, sy + shh - 10);
+  ctx.lineTo(sx, sy + 10);
+  ctx.quadraticCurveTo(sx, sy, sx + 10, sy);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 13px "DM Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('RABS — sterile zone', W / 2, H / 2 + 1);
+  ctx.font = '11px "DM Sans", sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.78)';
+  ctx.fillText('vaccine filling station', W / 2, H / 2 + 17);
+  ctx.textAlign = 'left';
+}
+
+// ── INIT ON LOAD ───────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initBio();
+  updateBio();
+});
+</script>
+</body>
+</html>
