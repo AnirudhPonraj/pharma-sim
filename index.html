@@ -458,7 +458,7 @@ body.splash-open{overflow:hidden;}
     <div id="sp-form-wrap">
       <div class="splash-badge"><span class="splash-badge-dot"></span>Free Access</div>
       <h2>Pharmaceutical Process Simulation</h2>
-      <p class="sub">Physics-approximated models of bioreactor scale-up, stirred tank mixing and cleanroom airflow — grounded in Siemens Digital Industries research.</p>
+      <p class="sub">Physics-approximated models of bioreactor scale-up, stirred tank mixing and cleanroom airflow — physics-based models for pharmaceutical process engineering.</p>
       <div class="splash-divider"></div>
 
       <div class="sp-row">
@@ -510,8 +510,8 @@ body.splash-open{overflow:hidden;}
   <div class="hdr-inner">
     <div class="hdr-pill"><span class="hdr-pill-dot"></span>Interactive Simulation</div>
     <h1>Pharmaceutical Process Simulation</h1>
-    <p>Physics-approximated interactive models of bioreactor scale-up, stirred tank mixing, and cleanroom airflow — based on the Siemens Digital Industries white paper.</p>
-    <div class="hdr-source">Source: Aglave &amp; Doyle, "Simulation in the Pharmaceutical Industry", Siemens Digital Industries Software, 2024</div>
+    <p>Physics-approximated interactive models of bioreactor scale-up, stirred tank mixing, and cleanroom airflow — interactive tools for pharmaceutical process engineering.</p>
+    
   </div>
 </header>
 
@@ -745,7 +745,7 @@ body.splash-open{overflow:hidden;}
 </main>
 
 <footer class="footer">
-  Simulation models are physics-approximated for educational purposes based on the Siemens Digital Industries Software white paper (2024).
+  Simulation models are physics-approximated for educational purposes.
 </footer>
 
 <script>
@@ -992,7 +992,7 @@ function updateMix() {
   else if (baff === 0)
     ins = '<strong>No baffles:</strong> Without baffles the fluid rotates as a solid cylinder (vortexing), dramatically reducing mixing efficiency. Add at least 2 baffles to break the circular flow pattern.';
   else
-    ins = '<strong>' + imp.label + ' impeller:</strong> Blend time ' + blend + 's at ' + unif + '% uniformity. Switch to the CFD-optimized design to see the efficiency gain demonstrated in the Siemens case study.';
+    ins = '<strong>' + imp.label + ' impeller:</strong> Blend time ' + blend + 's at ' + unif + '% uniformity. Switch to the CFD-optimized design to see the efficiency gain.';
   document.getElementById('ins-mix').innerHTML = ins;
 
   if (chartBlend) {
@@ -1146,8 +1146,8 @@ window.addEventListener('load', () => {
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────────────────────
 // Replace these two values with your own from supabase.com → Project Settings → API
-const SUPABASE_URL  = 'https://himbbhamdbmdczojcrvu.supabase.co/rest/v1/';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpbWJiaGFtZGJtZGN6b2pjcnZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzkwOTIsImV4cCI6MjA5NjA1NTA5Mn0.deU4L0sAdAkcXGQPQs3CGA2Q2zEEkdk651nCE_C3rds';
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 
 let sbClient = null;
 if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON_KEY') {
