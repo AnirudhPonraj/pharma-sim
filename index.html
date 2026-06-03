@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 
@@ -290,9 +291,216 @@ input[type=range]::-moz-range-thumb{
   .ctrl-grid,.kpi-row,.charts-2{grid-template-columns:1fr;}
   .tab-btn{font-size:12px;padding:8px 8px;}
 }
+
+/* ── SPLASH SCREEN ────────────────────────────────────── */
+#splash {
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg, #1a0a3d 0%, #2D1B5E 45%, #0d1a3a 100%);
+  overflow:hidden;
+}
+.splash-grid {
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(107,79,160,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107,79,160,0.12) 1px, transparent 1px);
+  background-size:48px 48px;
+  animation:gridDrift 18s linear infinite;
+}
+@keyframes gridDrift{from{background-position:0 0;}to{background-position:48px 48px;}}
+
+.splash-orb {
+  position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;
+}
+.splash-orb1{width:500px;height:500px;top:-120px;right:-120px;background:radial-gradient(circle, rgba(107,79,160,0.35) 0%, transparent 70%);}
+.splash-orb2{width:400px;height:400px;bottom:-100px;left:-80px;background:radial-gradient(circle, rgba(26,148,112,0.25) 0%, transparent 70%);}
+.splash-orb3{width:250px;height:250px;top:40%;left:30%;background:radial-gradient(circle, rgba(72,224,168,0.1) 0%, transparent 70%);}
+
+.splash-box {
+  position:relative;z-index:2;
+  width:min(520px, 92vw);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;
+  padding:2.5rem 2.75rem 2.75rem;
+  backdrop-filter:blur(20px);
+  box-shadow:0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06) inset;
+  animation:splashIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes splashIn{
+  from{opacity:0;transform:translateY(32px) scale(0.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+.splash-badge {
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(72,224,168,0.12);
+  border:1px solid rgba(72,224,168,0.28);
+  color:#48E0A8;
+  font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:6px 16px;border-radius:30px;margin-bottom:22px;
+}
+.splash-badge-dot{width:6px;height:6px;border-radius:50%;background:#48E0A8;box-shadow:0 0 8px rgba(72,224,168,0.7);}
+
+.splash-box h2 {
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(22px,3.5vw,30px);font-weight:700;
+  color:#fff;line-height:1.2;margin-bottom:10px;
+}
+.splash-box p.sub {
+  font-size:14px;color:rgba(255,255,255,0.52);
+  line-height:1.65;margin-bottom:28px;
+}
+
+.splash-divider {
+  height:1px;background:rgba(255,255,255,0.08);
+  margin-bottom:24px;
+}
+
+.sp-field {
+  margin-bottom:16px;
+}
+.sp-field label {
+  display:block;font-size:11px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:rgba(255,255,255,0.45);margin-bottom:7px;
+}
+.sp-field input, .sp-field select {
+  width:100%;padding:12px 16px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:10px;
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.2s, background 0.2s;
+  -webkit-appearance:none;
+}
+.sp-field input::placeholder{color:rgba(255,255,255,0.28);}
+.sp-field input:focus, .sp-field select:focus {
+  border-color:rgba(107,79,160,0.7);
+  background:rgba(255,255,255,0.10);
+}
+.sp-field select option{background:#2D1B5E;color:#fff;}
+
+.sp-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+.sp-btn {
+  width:100%;padding:14px;margin-top:8px;
+  background:linear-gradient(135deg, #6B4FA0 0%, #4A2F8E 100%);
+  border:none;border-radius:12px;
+  color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all 0.22s;
+  box-shadow:0 6px 24px rgba(74,47,142,0.5);
+  position:relative;overflow:hidden;
+}
+.sp-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(74,47,142,0.65);}
+.sp-btn:active{transform:translateY(0);}
+.sp-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+.sp-btn-shine {
+  position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  transform:skewX(-20deg);animation:shine 3s infinite;
+}
+@keyframes shine{0%{left:-100%;}40%,100%{left:160%;}}
+
+.sp-error{
+  font-size:12px;color:#ff7070;
+  margin-top:-8px;margin-bottom:8px;display:none;
+}
+.sp-success{
+  text-align:center;padding:2rem 1rem;display:none;
+}
+.sp-success-icon{font-size:48px;margin-bottom:12px;}
+.sp-success h3{font-family:'Outfit',sans-serif;color:#48E0A8;font-size:22px;margin-bottom:8px;}
+.sp-success p{color:rgba(255,255,255,0.55);font-size:14px;}
+
+.sp-skip {
+  text-align:center;margin-top:16px;
+}
+.sp-skip a {
+  font-size:12px;color:rgba(255,255,255,0.3);
+  text-decoration:none;cursor:pointer;
+  transition:color 0.2s;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  padding-bottom:1px;
+}
+.sp-skip a:hover{color:rgba(255,255,255,0.55);}
+
+/* splash exit animation */
+#splash.exit{animation:splashOut 0.5s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes splashOut{
+  to{opacity:0;transform:scale(1.03);}
+}
+
+/* body lock while splash visible */
+body.splash-open{overflow:hidden;}
 </style>
 </head>
-<body>
+<body class="splash-open">
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-grid"></div>
+  <div class="splash-orb splash-orb1"></div>
+  <div class="splash-orb splash-orb2"></div>
+  <div class="splash-orb splash-orb3"></div>
+
+  <div class="splash-box">
+    <!-- Success state (hidden by default) -->
+    <div class="sp-success" id="sp-success">
+      <div class="sp-success-icon">🧬</div>
+      <h3>You're in.</h3>
+      <p>Launching your simulation dashboard…</p>
+    </div>
+
+    <!-- Form state -->
+    <div id="sp-form-wrap">
+      <div class="splash-badge"><span class="splash-badge-dot"></span>Free Access</div>
+      <h2>Pharmaceutical Process Simulation</h2>
+      <p class="sub">Physics-approximated models of bioreactor scale-up, stirred tank mixing and cleanroom airflow — grounded in Siemens Digital Industries research.</p>
+      <div class="splash-divider"></div>
+
+      <div class="sp-row">
+        <div class="sp-field">
+          <label>First name</label>
+          <input type="text" id="sp-fname" placeholder="Ravi" autocomplete="given-name">
+        </div>
+        <div class="sp-field">
+          <label>Last name</label>
+          <input type="text" id="sp-lname" placeholder="Sharma" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="sp-field">
+        <label>Work email</label>
+        <input type="email" id="sp-email" placeholder="ravi@pharmalab.com" autocomplete="email">
+      </div>
+      <div class="sp-field">
+        <label>Organisation</label>
+        <input type="text" id="sp-org" placeholder="Company / University" autocomplete="organization">
+      </div>
+      <div class="sp-field">
+        <label>Role</label>
+        <select id="sp-role">
+          <option value="">Select your role…</option>
+          <option>Process Engineer</option>
+          <option>R&amp;D Scientist</option>
+          <option>Manufacturing / Operations</option>
+          <option>Regulatory Affairs</option>
+          <option>Student / Academic</option>
+          <option>Consultant</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="sp-error" id="sp-error">Please fill in all required fields.</div>
+      <button class="sp-btn" id="sp-submit" onclick="submitLead()">
+        <span class="sp-btn-shine"></span>
+        Launch Simulation →
+      </button>
+      <div class="sp-skip"><a onclick="skipSplash()">Skip for now</a></div>
+    </div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <header class="hdr">
@@ -935,6 +1143,88 @@ window.addEventListener('load', () => {
   initBio();
   updateBio();
 });
+
+// ── SUPABASE CONFIG ─────────────────────────────────────────────────────────
+// Replace these two values with your own from supabase.com → Project Settings → API
+const SUPABASE_URL  = 'https://himbbhamdbmdczojcrvu.supabase.co/rest/v1/';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpbWJiaGFtZGJtZGN6b2pjcnZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NzkwOTIsImV4cCI6MjA5NjA1NTA5Mn0.deU4L0sAdAkcXGQPQs3CGA2Q2zEEkdk651nCE_C3rds';
+
+let sbClient = null;
+if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON_KEY') {
+  try {
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  } catch(e) {
+    console.warn('Supabase init failed:', e);
+  }
+}
+
+// ── SPLASH LOGIC ────────────────────────────────────────────────────────────
+function dismissSplash() {
+  const el = document.getElementById('splash');
+  el.classList.add('exit');
+  document.body.classList.remove('splash-open');
+  setTimeout(() => { el.style.display = 'none'; }, 500);
+}
+
+function skipSplash() {
+  dismissSplash();
+}
+
+async function submitLead() {
+  const fname = document.getElementById('sp-fname').value.trim();
+  const lname = document.getElementById('sp-lname').value.trim();
+  const email = document.getElementById('sp-email').value.trim();
+  const org   = document.getElementById('sp-org').value.trim();
+  const role  = document.getElementById('sp-role').value;
+  const errEl = document.getElementById('sp-error');
+
+  // Validate
+  if (!fname || !email || !role) {
+    errEl.textContent = 'First name, email and role are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!emailOk) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('sp-submit');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const payload = {
+    first_name:   fname,
+    last_name:    lname,
+    email:        email,
+    organisation: org,
+    role:         role,
+    source:       'pharma-simulation',
+    created_at:   new Date().toISOString()
+  };
+
+  // Try Supabase insert (gracefully skip if not configured)
+  if (sbClient && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    try {
+      const { error } = await sbClient.from('leads').insert([payload]);
+      if (error) console.error('Supabase insert error:', error);
+    } catch(e) {
+      console.warn('Supabase unavailable, skipping insert:', e);
+    }
+  } else {
+    // Log to console when not yet configured
+    console.log('Lead captured (Supabase not yet configured):', payload);
+  }
+
+  // Show success then dismiss
+  document.getElementById('sp-form-wrap').style.display = 'none';
+  const succ = document.getElementById('sp-success');
+  succ.style.display = 'block';
+  setTimeout(dismissSplash, 1800);
+}
 </script>
 </body>
 </html>
